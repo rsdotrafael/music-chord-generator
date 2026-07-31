@@ -61,4 +61,47 @@ class NotaTest {
             erro.getMessage()
         );
     }
+
+    @Test
+    void deveCalcularAlturaDeNotaNatural() {
+        Nota nota = new Nota('F', Acidente.NATURAL);
+
+        assertEquals(5, nota.getAltura());
+    }
+
+    @Test
+    void deveCalcularAlturaComSustenido() {
+        Nota nota = new Nota('F', Acidente.SUSTENIDO);
+
+        assertEquals(6, nota.getAltura());
+    }
+
+    @Test
+    void deveCalcularAlturaComBemol() {
+        Nota nota = new Nota('G', Acidente.BEMOL);
+
+        assertEquals(6, nota.getAltura());
+    }
+
+    @Test
+    void deveDarMesmaAlturaParaNotasEnarmonicas() {
+        Nota faSustenido = new Nota('F', Acidente.SUSTENIDO);
+        Nota solBemol = new Nota('G', Acidente.BEMOL);
+
+        assertEquals(faSustenido.getAltura(), solBemol.getAltura());
+    }
+
+    @Test
+    void deveVoltarAoInicioDepoisDeB() {
+        Nota nota = new Nota('B', Acidente.SUSTENIDO);
+
+        assertEquals(0, nota.getAltura());
+    }
+
+    @Test
+    void deveVoltarAoFinalAntesDeC() {
+        Nota nota = new Nota('C', Acidente.BEMOL);
+
+        assertEquals(11, nota.getAltura());
+    }
 }

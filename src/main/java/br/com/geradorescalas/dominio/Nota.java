@@ -26,6 +26,24 @@ public final class Nota {
         return acidente;
     }
 
+    public int getAltura() {
+        int alturaNatural = switch (letra) {
+            case 'C' -> 0;
+            case 'D' -> 2;
+            case 'E' -> 4;
+            case 'F' -> 5;
+            case 'G' -> 7;
+            case 'A' -> 9;
+            case 'B' -> 11;
+            default -> throw new IllegalStateException("Letra inválida: " + letra);
+        };
+
+        return Math.floorMod(
+            alturaNatural + acidente.getAlteracao(),
+            12
+        );
+    }
+
     @Override
     public String toString() {
         return letra + acidente.getSimbolo();
