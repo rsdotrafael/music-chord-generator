@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gerador de Escalas Musicais</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: system-ui, sans-serif;
+            background: #f4f1ea;
+            color: #25231f;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+        }
+
+        main {
+            width: min(42rem, calc(100% - 2rem));
+            box-sizing: border-box;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 1rem 3rem rgb(49 43 31 / 12%);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        form {
+            display: flex;
+            gap: 0.75rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        label {
+            display: grid;
+            gap: 0.4rem;
+            font-weight: 600;
+        }
+
+        select,
+        button {
+            min-height: 2.75rem;
+            padding: 0.6rem 0.9rem;
+            border: 1px solid #817a6b;
+            border-radius: 0.5rem;
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border-color: #263c2d;
+            background: #263c2d;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        #resultado {
+            min-height: 2rem;
+            margin-top: 2rem;
+            font-size: clamp(1.1rem, 4vw, 1.5rem);
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        .erro {
+            color: #a12222;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Gerador de Escalas Musicais</h1>
+    <p>Escolha uma tônica para gerar sua escala maior.</p>
+
+    <form id="formulario">
+        <label for="tonica">
+            Tônica
+            <select id="tonica" name="tonica">
+                <option>C</option>
+                <option>Db</option>
+                <option>D</option>
+                <option>Eb</option>
+                <option>E</option>
+                <option>F</option>
+                <option>F#</option>
+                <option>Gb</option>
+                <option>G</option>
+                <option>Ab</option>
+                <option>A</option>
+                <option>Bb</option>
+                <option>B</option>
+            </select>
+        </label>
+        <button type="submit">Gerar escala</button>
+    </form>
+
+    <div id="resultado" role="status" aria-live="polite"></div>
+</main>
+
+<script>
+    const formulario = document.querySelector('#formulario');
+    const tonica = document.querySelector('#tonica');
+    const resultado = document.querySelector('#resultado');
+
+    formulario.addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+        resultado.classList.remove('erro');
+        resultado.textContent = 'Gerando…';
+
+        try {
+            const parametros = new URLSearchParams({ tonica: tonica.value });
+            const resposta = await fetch(`/api/escalas/maior?${parametros}`);
+
+            if (!resposta.ok) {
+                throw new Error('Não foi possível gerar a escala.');
+            }
+
+            const escala = await resposta.json();
+            resultado.textContent = escala.notas.join(' - ');
+        } catch (erro) {
+            resultado.classList.add('erro');
+            resultado.textContent = erro.message;
+        }
+    });
+</script>
+</body>
+</html>
