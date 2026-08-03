@@ -46,6 +46,8 @@ public final class GeradorEscalaMaior {
         return switch (diferenca) {
             case 0 -> Acidente.NATURAL;
             case 1 -> Acidente.SUSTENIDO;
+            case 2 -> Acidente.SUSTENIDO_DUPLO;
+            case 10 -> Acidente.BEMOL_DUPLO;
             case 11 -> Acidente.BEMOL;
             default -> throw new IllegalArgumentException(
                 "A escala exige um acidente ainda não suportado"

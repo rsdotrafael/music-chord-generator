@@ -49,6 +49,30 @@ class GeradorEscalaMaiorTest {
     }
 
     @Test
+    void deveGerarEscalaDeSolSustenidoMaiorComSustenidoDuplo() {
+        List<Nota> escala = gerador.gerar(
+            new Nota('G', Acidente.SUSTENIDO)
+        );
+
+        assertEquals(
+            "G# - A# - B# - C# - D# - E# - F## - G#",
+            formatar(escala)
+        );
+    }
+
+    @Test
+    void deveGerarEscalaDeFaBemolMaiorComBemolDuplo() {
+        List<Nota> escala = gerador.gerar(
+            new Nota('F', Acidente.BEMOL)
+        );
+
+        assertEquals(
+            "Fb - Gb - Ab - Bbb - Cb - Db - Eb - Fb",
+            formatar(escala)
+        );
+    }
+
+    @Test
     void deveRejeitarTonicaNula() {
         NullPointerException erro = assertThrows(
             NullPointerException.class,

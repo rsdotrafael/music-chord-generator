@@ -29,6 +29,18 @@ class NotaTest {
     }
 
     @Test
+    void deveRepresentarAcidentesDuplos() {
+        assertEquals(
+            "F##",
+            new Nota('F', Acidente.SUSTENIDO_DUPLO).toString()
+        );
+        assertEquals(
+            "Bbb",
+            new Nota('B', Acidente.BEMOL_DUPLO).toString()
+        );
+    }
+
+    @Test
     void deveConverterLetraMinusculaParaMaiuscula() {
         Nota nota = new Nota('f', Acidente.NATURAL);
 

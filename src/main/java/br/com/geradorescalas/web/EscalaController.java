@@ -35,20 +35,14 @@ public class EscalaController {
         }
 
         String valor = texto.trim();
-        if (valor.length() > 2) {
-            throw entradaInvalida();
-        }
-
         char letra = Character.toUpperCase(valor.charAt(0));
-        Acidente acidente = Acidente.NATURAL;
-
-        if (valor.length() == 2) {
-            acidente = switch (valor.charAt(1)) {
-                case '#', '♯' -> Acidente.SUSTENIDO;
-                case 'b', '♭' -> Acidente.BEMOL;
-                default -> throw entradaInvalida();
-            };
-        }
+        String simbolo = valor.substring(1);
+        Acidente acidente = switch (simbolo) {
+            case "" -> Acidente.NATURAL;
+            case "#", "♯" -> Acidente.SUSTENIDO;
+            case "b", "♭" -> Acidente.BEMOL;
+            default -> throw entradaInvalida();
+        };
 
         try {
             return new Nota(letra, acidente);
