@@ -84,7 +84,7 @@ class GeradorEscalaMaiorTest {
 
     private String formatar(List<Nota> escala) {
         return escala.stream()
-            .map(Nota::toString)
+            .map(nota -> nota.toString())
             .collect(Collectors.joining(" - "));
     }
 }

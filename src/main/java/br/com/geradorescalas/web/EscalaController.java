@@ -23,7 +23,7 @@ public class EscalaController {
     public EscalaResponse gerarEscalaMaior(@RequestParam String tonica) {
         Nota notaTonica = converterTonica(tonica);
         List<String> notas = gerador.gerar(notaTonica).stream()
-            .map(Nota::toString)
+            .map(nota -> nota.toString())
             .toList();
 
         return new EscalaResponse(notaTonica.toString(), notas);
