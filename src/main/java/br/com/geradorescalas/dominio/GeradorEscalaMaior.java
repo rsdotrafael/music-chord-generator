@@ -29,6 +29,22 @@ public final class GeradorEscalaMaior {
         return List.copyOf(escala);
     }
 
+    public List<NotaComOitava> gerarComOitavas(Nota tonica, int oitavaInicial) {
+        List<Nota> notas = gerar(tonica);
+        List<NotaComOitava> escala = new ArrayList<>();
+        int oitava = oitavaInicial;
+
+        for (int grau = 0; grau < notas.size(); grau++) {
+            if (grau > 0 && notas.get(grau).getLetra() == 'C') {
+                oitava++;
+            }
+
+            escala.add(new NotaComOitava(notas.get(grau), oitava));
+        }
+
+        return List.copyOf(escala);
+    }
+
     private char calcularLetra(char letraDaTonica, int grau) {
         int indiceInicial = LETRAS.indexOf(letraDaTonica);
         int indiceDoGrau = (indiceInicial + grau) % LETRAS.length();

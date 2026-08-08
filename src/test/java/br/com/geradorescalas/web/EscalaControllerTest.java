@@ -20,7 +20,7 @@ class EscalaControllerTest {
         assertEquals("F#", resposta.tonica());
         assertEquals(
             "F# - G# - A# - B - C# - D# - E# - F#",
-            String.join(" - ", resposta.notas())
+            formatarNotas(resposta)
         );
     }
 
@@ -31,7 +31,7 @@ class EscalaControllerTest {
 
         assertEquals(
             "Gb - Ab - Bb - Cb - Db - Eb - F - Gb",
-            String.join(" - ", resposta.notas())
+            formatarNotas(resposta)
         );
     }
 
@@ -42,7 +42,23 @@ class EscalaControllerTest {
 
         assertEquals(
             "G# - A# - B# - C# - D# - E# - F## - G#",
-            String.join(" - ", resposta.notas())
+            formatarNotas(resposta)
+        );
+    }
+
+    @Test
+    void deveFornecerAlturaSonoraParaReproducao() {
+        EscalaController.EscalaResponse resposta =
+            controller.gerarEscalaMaior("F#");
+
+        assertEquals(66, resposta.notas().getFirst().midi());
+        assertEquals(78, resposta.notas().getLast().midi());
+        assertEquals(4, resposta.notas().getFirst().oitava());
+        assertEquals(5, resposta.notas().getLast().oitava());
+        assertEquals(
+            369.994,
+            resposta.notas().getFirst().frequencia(),
+            0.001
         );
     }
 
@@ -73,5 +89,12 @@ class EscalaControllerTest {
         );
 
         assertEquals(400, erro.getStatusCode().value());
+    }
+
+    private String formatarNotas(EscalaController.EscalaResponse resposta) {
+        return resposta.notas().stream()
+            .map(EscalaController.NotaResponse::nome)
+            .reduce((primeira, segunda) -> primeira + " - " + segunda)
+            .orElse("");
     }
 }

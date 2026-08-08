@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.geradorescalas.dominio.Acidente;
 import br.com.geradorescalas.dominio.GeradorEscalaMaior;
 import br.com.geradorescalas.dominio.Nota;
+import br.com.geradorescalas.dominio.NotaComOitava;
 
 @RestController
 @RequestMapping("/api/escalas")
@@ -22,11 +23,20 @@ public class EscalaController {
     @GetMapping("/maior")
     public EscalaResponse gerarEscalaMaior(@RequestParam String tonica) {
         Nota notaTonica = converterTonica(tonica);
-        List<String> notas = gerador.gerar(notaTonica).stream()
-            .map(nota -> nota.toString())
+        List<NotaResponse> notas = gerador.gerarComOitavas(notaTonica, 4).stream()
+            .map(this::criarNotaResponse)
             .toList();
 
         return new EscalaResponse(notaTonica.toString(), notas);
+    }
+
+    private NotaResponse criarNotaResponse(NotaComOitava nota) {
+        return new NotaResponse(
+            nota.nota().toString(),
+            nota.oitava(),
+            nota.getNumeroMidi(),
+            nota.getFrequencia()
+        );
     }
 
     private Nota converterTonica(String texto) {
@@ -58,6 +68,14 @@ public class EscalaController {
         );
     }
 
-    public record EscalaResponse(String tonica, List<String> notas) {
+    public record EscalaResponse(String tonica, List<NotaResponse> notas) {
+    }
+
+    public record NotaResponse(
+        String nome,
+        int oitava,
+        int midi,
+        double frequencia
+    ) {
     }
 }
