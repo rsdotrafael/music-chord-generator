@@ -1,6 +1,7 @@
 package br.com.geradorescalas.web;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,6 +43,31 @@ class EscalaControllerTest {
 
         assertEquals(
             "G# - A# - B# - C# - D# - E# - F## - G#",
+            formatarNotas(resposta)
+        );
+    }
+
+    @Test
+    void deveGerarLaMenorNatural() {
+        EscalaController.EscalaResponse resposta =
+            controller.gerarEscalaMenorNatural("A");
+
+        assertEquals("A", resposta.tonica());
+        assertEquals(
+            "A - B - C - D - E - F - G - A",
+            formatarNotas(resposta)
+        );
+        assertEquals(69, resposta.notas().getFirst().midi());
+        assertEquals(81, resposta.notas().getLast().midi());
+    }
+
+    @Test
+    void deveGerarSiBemolMenorNatural() {
+        EscalaController.EscalaResponse resposta =
+            controller.gerarEscalaMenorNatural("Bb");
+
+        assertEquals(
+            "Bb - C - Db - Eb - F - Gb - Ab - Bb",
             formatarNotas(resposta)
         );
     }
@@ -93,7 +119,7 @@ class EscalaControllerTest {
 
     private String formatarNotas(EscalaController.EscalaResponse resposta) {
         return resposta.notas().stream()
-            .map(EscalaController.NotaResponse::nome)
+            .map(nota -> Objects.requireNonNull(nota).nome())
             .reduce((primeira, segunda) -> primeira + " - " + segunda)
             .orElse("");
     }

@@ -122,7 +122,7 @@
 <body>
 <main>
     <h1>Gerador de Escalas Musicais</h1>
-    <p>Escolha uma tônica para gerar sua escala maior.</p>
+    <p>Escolha a tônica e o tipo de escala que deseja gerar.</p>
 
     <form id="formulario">
         <label for="tonica">
@@ -149,6 +149,13 @@
                 <option>B</option>
                 <option>B#</option>
                 <option>Bb</option>
+            </select>
+        </label>
+        <label for="tipo-escala">
+            Escala
+            <select id="tipo-escala" name="tipoEscala">
+                <option value="maior" selected>Maior</option>
+                <option value="menor-natural">Menor natural</option>
             </select>
         </label>
         <button type="submit">Gerar escala</button>
@@ -341,6 +348,7 @@
 
     const formulario = document.querySelector('#formulario');
     const tonica = document.querySelector('#tonica');
+    const tipoEscala = document.querySelector('#tipo-escala');
     const resultado = document.querySelector('#resultado');
     const seletorTimbre = document.querySelector('#timbre');
     const botaoOuvir = document.querySelector('#ouvir');
@@ -372,7 +380,9 @@
 
         try {
             const parametros = new URLSearchParams({ tonica: tonica.value });
-            const resposta = await fetch(`/api/escalas/maior?${parametros}`);
+            const resposta = await fetch(
+                `/api/escalas/${tipoEscala.value}?${parametros}`
+            );
 
             if (!resposta.ok) {
                 throw new Error('Não foi possível gerar a escala.');
