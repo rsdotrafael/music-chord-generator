@@ -78,11 +78,30 @@
             flex-wrap: wrap;
         }
 
+        .configuracoes-som {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #d8d2c7;
+            border-radius: 0.75rem;
+            background: #faf8f3;
+        }
+
+        .configuracoes-som legend {
+            padding: 0 0.4rem;
+            font-weight: 700;
+        }
+
+        .opcoes-som {
+            display: flex;
+            gap: 1.5rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
         .controle-volume {
             display: flex;
             gap: 0.5rem;
             align-items: center;
-            margin-left: auto;
             font-weight: 600;
         }
 
@@ -137,21 +156,34 @@
 
     <div id="resultado" role="status" aria-live="polite"></div>
 
+    <fieldset class="configuracoes-som">
+        <legend>Som</legend>
+        <div class="opcoes-som">
+            <label for="timbre">
+                Timbre
+                <select id="timbre" name="timbre">
+                    <option value="piano">Piano</option>
+                    <option value="violino">Violino</option>
+                </select>
+            </label>
+            <label class="controle-volume" for="volume">
+                Volume
+                <input
+                    id="volume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="70"
+                    step="1"
+                >
+                <output id="valor-volume" for="volume">70%</output>
+            </label>
+        </div>
+    </fieldset>
+
     <div class="controles-audio" aria-label="Controles de reprodução">
         <button id="ouvir" type="button" disabled>Ouvir escala</button>
         <button id="parar" type="button" disabled>Parar</button>
-        <label class="controle-volume" for="volume">
-            Volume
-            <input
-                id="volume"
-                type="range"
-                min="0"
-                max="100"
-                value="70"
-                step="1"
-            >
-            <output id="valor-volume" for="volume">70%</output>
-        </label>
     </div>
 </main>
 
@@ -187,7 +219,7 @@
             }
         }
 
-        async reproduzirSequencia(notas, duracaoNota = 0.5) {
+        async reproduzirSequencia(notas, timbre, duracaoNota = 0.65) {
             await this.iniciarContexto();
             this.parar();
 
@@ -195,7 +227,7 @@
 
             notas.forEach((nota, indice) => {
                 const instante = inicio + indice * duracaoNota;
-                this.#agendarNota(nota.frequencia, instante, duracaoNota * 0.9);
+                this.#agendarNota(nota.frequencia, instante, duracaoNota * 0.92, timbre);
             });
 
             return notas.length * duracaoNota;
@@ -226,32 +258,83 @@
             this.#fontesAtivas = [];
         }
 
-        #agendarNota(frequencia, inicio, duracao) {
+        #agendarNota(frequencia, inicio, duracao, timbre = 'piano') {
+            if (timbre === 'violino') {
+                this.#agendarViolino(frequencia, inicio, duracao);
+                return;
+            }
+
+            this.#agendarPiano(frequencia, inicio, duracao);
+        }
+
+        #agendarPiano(frequencia, inicio, duracao) {
+            // Vários parciais e decaimentos diferentes aproximam a riqueza de uma corda percutida.
+            const harmonicos = [
+                { multiplo: 1, ganho: 0.22, decaimento: 1 },
+                { multiplo: 2.01, ganho: 0.10, decaimento: 0.72 },
+                { multiplo: 3.03, ganho: 0.055, decaimento: 0.48 },
+                { multiplo: 4.08, ganho: 0.025, decaimento: 0.34 }
+            ];
+
+            harmonicos.forEach(({ multiplo, ganho, decaimento }) => {
+                const oscilador = this.#contexto.createOscillator();
+                const envelope = this.#contexto.createGain();
+                const fim = inicio + duracao;
+
+                oscilador.type = 'sine';
+                oscilador.frequency.setValueAtTime(frequencia * multiplo, inicio);
+                envelope.gain.setValueAtTime(0.0001, inicio);
+                envelope.gain.exponentialRampToValueAtTime(ganho, inicio + 0.008);
+                envelope.gain.exponentialRampToValueAtTime(
+                    Math.max(0.0001, ganho * 0.12),
+                    inicio + duracao * decaimento
+                );
+                envelope.gain.exponentialRampToValueAtTime(0.0001, fim);
+
+                oscilador.connect(envelope);
+                envelope.connect(this.#ganhoMestre);
+                this.#iniciarFonte(oscilador, envelope, inicio, fim);
+            });
+        }
+
+        #agendarViolino(frequencia, inicio, duracao) {
             const oscilador = this.#contexto.createOscillator();
-            const volume = this.#contexto.createGain();
+            const vibrato = this.#contexto.createOscillator();
+            const intensidadeVibrato = this.#contexto.createGain();
+            const envelope = this.#contexto.createGain();
             const fim = inicio + duracao;
 
-            oscilador.type = 'triangle';
+            oscilador.type = 'sawtooth';
             oscilador.frequency.setValueAtTime(frequencia, inicio);
+            vibrato.frequency.setValueAtTime(5.4, inicio);
+            intensidadeVibrato.gain.setValueAtTime(0, inicio);
+            intensidadeVibrato.gain.linearRampToValueAtTime(frequencia * 0.006, inicio + 0.18);
+            envelope.gain.setValueAtTime(0.0001, inicio);
+            envelope.gain.linearRampToValueAtTime(0.075, inicio + 0.09);
+            envelope.gain.setValueAtTime(0.075, Math.max(inicio + 0.09, fim - 0.1));
+            envelope.gain.exponentialRampToValueAtTime(0.0001, fim);
 
-            volume.gain.setValueAtTime(0.0001, inicio);
-            volume.gain.exponentialRampToValueAtTime(0.18, inicio + 0.025);
-            volume.gain.exponentialRampToValueAtTime(0.0001, fim);
+            vibrato.connect(intensidadeVibrato);
+            intensidadeVibrato.connect(oscilador.frequency);
+            oscilador.connect(envelope);
+            envelope.connect(this.#ganhoMestre);
 
-            oscilador.connect(volume);
-            volume.connect(this.#ganhoMestre);
+            this.#iniciarFonte(oscilador, envelope, inicio, fim);
+            this.#iniciarFonte(vibrato, intensidadeVibrato, inicio, fim);
+        }
 
-            oscilador.addEventListener('ended', () => {
-                oscilador.disconnect();
-                volume.disconnect();
+        #iniciarFonte(fonte, noSaida, inicio, fim) {
+            fonte.addEventListener('ended', () => {
+                fonte.disconnect();
+                noSaida.disconnect();
                 this.#fontesAtivas = this.#fontesAtivas.filter(
-                    (fonte) => fonte !== oscilador
+                    (fonteAtiva) => fonteAtiva !== fonte
                 );
             });
 
-            this.#fontesAtivas.push(oscilador);
-            oscilador.start(inicio);
-            oscilador.stop(fim);
+            this.#fontesAtivas.push(fonte);
+            fonte.start(inicio);
+            fonte.stop(fim);
         }
 
     }
@@ -259,6 +342,7 @@
     const formulario = document.querySelector('#formulario');
     const tonica = document.querySelector('#tonica');
     const resultado = document.querySelector('#resultado');
+    const seletorTimbre = document.querySelector('#timbre');
     const botaoOuvir = document.querySelector('#ouvir');
     const botaoParar = document.querySelector('#parar');
     const controleVolume = document.querySelector('#volume');
@@ -317,7 +401,10 @@
         botaoParar.disabled = false;
 
         try {
-            const duracao = await reprodutor.reproduzirSequencia(notasAtuais);
+            const duracao = await reprodutor.reproduzirSequencia(
+                notasAtuais,
+                seletorTimbre.value
+            );
 
             temporizadorReproducao = setTimeout(() => {
                 botaoOuvir.disabled = false;
