@@ -73,6 +73,34 @@ class EscalaControllerTest {
     }
 
     @Test
+    void deveGerarLaMenorMelodica() {
+        EscalaController.EscalaResponse resposta =
+            controller.gerarEscalaMenorMelodica("A");
+
+        assertEquals("A", resposta.tonica());
+        assertEquals(
+            "A - B - C - D - E - F# - G# - A",
+            formatarNotas(resposta)
+        );
+        assertEquals(69, resposta.notas().getFirst().midi());
+        assertEquals(81, resposta.notas().getLast().midi());
+    }
+
+    @Test
+    void deveGerarLaMenorHarmonica() {
+        EscalaController.EscalaResponse resposta =
+            controller.gerarEscalaMenorHarmonica("A");
+
+        assertEquals("A", resposta.tonica());
+        assertEquals(
+            "A - B - C - D - E - F - G# - A",
+            formatarNotas(resposta)
+        );
+        assertEquals(69, resposta.notas().getFirst().midi());
+        assertEquals(81, resposta.notas().getLast().midi());
+    }
+
+    @Test
     void deveFornecerAlturaSonoraParaReproducao() {
         EscalaController.EscalaResponse resposta =
             controller.gerarEscalaMaior("F#");

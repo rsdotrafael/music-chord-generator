@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.geradorescalas.dominio.Acidente;
 import br.com.geradorescalas.dominio.GeradorEscala;
 import br.com.geradorescalas.dominio.GeradorEscalaMaior;
+import br.com.geradorescalas.dominio.GeradorEscalaMenorHarmonica;
+import br.com.geradorescalas.dominio.GeradorEscalaMenorMelodica;
 import br.com.geradorescalas.dominio.GeradorEscalaMenorNatural;
 import br.com.geradorescalas.dominio.Nota;
 import br.com.geradorescalas.dominio.NotaComOitava;
@@ -23,6 +25,10 @@ public class EscalaController {
     private final GeradorEscala geradorMaior = new GeradorEscalaMaior();
     private final GeradorEscala geradorMenorNatural =
         new GeradorEscalaMenorNatural();
+    private final GeradorEscala geradorMenorMelodica =
+        new GeradorEscalaMenorMelodica();
+    private final GeradorEscala geradorMenorHarmonica =
+        new GeradorEscalaMenorHarmonica();
 
     @GetMapping("/maior")
     public EscalaResponse gerarEscalaMaior(@RequestParam String tonica) {
@@ -34,6 +40,20 @@ public class EscalaController {
         @RequestParam String tonica
     ) {
         return gerarEscala(tonica, geradorMenorNatural);
+    }
+
+    @GetMapping("/menor-melodica")
+    public EscalaResponse gerarEscalaMenorMelodica(
+        @RequestParam String tonica
+    ) {
+        return gerarEscala(tonica, geradorMenorMelodica);
+    }
+
+    @GetMapping("/menor-harmonica")
+    public EscalaResponse gerarEscalaMenorHarmonica(
+        @RequestParam String tonica
+    ) {
+        return gerarEscala(tonica, geradorMenorHarmonica);
     }
 
     private EscalaResponse gerarEscala(String tonica, GeradorEscala gerador) {
