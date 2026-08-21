@@ -1,36 +1,40 @@
 # Gerador de Escalas Musicais
 
-Aplicação web em Java para gerar, visualizar e ouvir escalas musicais com grafia correta de sustenidos e bemóis.
+Aplicação web em Java para gerar, visualizar e ouvir escalas musicais com diferentes quantidades de notas e grafia correta de sustenidos e bemóis.
 
 ## Funcionalidades
 
-- geração de escalas maiores;
-- geração de escalas menores naturais;
-- geração de escalas menores melódicas ascendentes;
-- geração de escalas menores harmônicas;
+- geração de escalas maiores e menores;
+- suporte a escalas pentatônicas e de tons inteiros;
+- catálogo declarativo, extensível sem criar um novo algoritmo para cada escala;
 - suporte às 21 grafias de tônica natural, sustenida ou bemolizada, de `C` a `B`;
-- manutenção da sequência correta das letras musicais em cada grau;
 - uso automático de sustenidos, bemóis, sustenidos duplos e bemóis duplos quando necessários;
-- apresentação das oito notas, incluindo a repetição da tônica na oitava seguinte;
-- cálculo da oitava, do número MIDI e da frequência de cada nota;
-- reprodução sequencial da escala no navegador pela Web Audio API;
-- escolha entre timbres sintetizados de piano e violino;
-- controle de volume e interrupção da reprodução;
-- API HTTP para integração com outros clientes;
-- validação de tônicas inválidas com resposta HTTP `400 Bad Request`;
+- cálculo da oitava pelo intervalo absoluto, do número MIDI e da frequência;
+- reprodução sequencial no navegador pela Web Audio API;
+- timbres sintetizados de piano e violino, controle de volume e interrupção;
+- API HTTP com descoberta dos tipos de escala disponíveis;
 - interface responsiva, sem framework JavaScript e sem banco de dados.
 
-Exemplos de grafia produzida:
+Tipos disponíveis:
+
+| Identificador | Nome |
+|---|---|
+| `maior` | Maior |
+| `menor-natural` | Menor natural |
+| `menor-melodica` | Menor melódica ascendente |
+| `menor-harmonica` | Menor harmônica |
+| `pentatonica-maior` | Pentatônica maior |
+| `pentatonica-menor` | Pentatônica menor |
+| `tons-inteiros` | Tons inteiros |
+
+Exemplos:
 
 ```text
-F maior   -> F - G - A - Bb - C - D - E - F
-F# maior  -> F# - G# - A# - B - C# - D# - E# - F#
-Gb maior  -> Gb - Ab - Bb - Cb - Db - Eb - F - Gb
-G# maior  -> G# - A# - B# - C# - D# - E# - F## - G#
-A menor   -> A - B - C - D - E - F - G - A
-Am melódica -> A - B - C - D - E - F# - G# - A
-Am harmônica -> A - B - C - D - E - F - G# - A
-Bb menor  -> Bb - C - Db - Eb - F - Gb - Ab - Bb
+F maior              -> F - G - A - Bb - C - D - E - F
+G# maior             -> G# - A# - B# - C# - D# - E# - F## - G#
+A menor harmônica   -> A - B - C - D - E - F - G# - A
+C pentatônica maior -> C - D - E - G - A - C
+C tons inteiros      -> C - D - E - F# - G# - A# - C
 ```
 
 ## Tecnologias
@@ -47,7 +51,7 @@ Bb menor  -> Bb - C - Db - Eb - F - Gb - Ab - Bb
 
 Pré-requisito: JDK 25 instalado e disponível no `PATH`.
 
-No Windows, abra o PowerShell na raiz do projeto e execute:
+No Windows, abra o PowerShell na raiz do projeto:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
@@ -59,129 +63,139 @@ No Linux ou macOS:
 ./mvnw spring-boot:run
 ```
 
-Se você já possui o Maven instalado, também pode executar:
+Se o Maven estiver instalado no sistema, também é possível usar:
 
 ```bash
 mvn spring-boot:run
 ```
 
-Depois, acesse [http://localhost:8080](http://localhost:8080). Para encerrar a aplicação, pressione `Ctrl+C` no terminal.
+Depois, acesse [http://localhost:8080](http://localhost:8080). Para encerrar, pressione `Ctrl+C` no terminal.
 
 ## Como usar
 
 1. Selecione a tônica.
-2. Escolha entre a escala maior, a menor natural, a menor melódica e a menor harmônica.
+2. Escolha um dos tipos de escala carregados pela API.
 3. Clique em **Gerar escala**.
-4. Para ouvir as notas em sequência, escolha o timbre, ajuste o volume e clique em **Ouvir escala**.
+4. Escolha o timbre, ajuste o volume e clique em **Ouvir escala**.
 5. Use **Parar** para interromper a reprodução.
 
-O som é sintetizado pelo navegador e, portanto, depende do suporte à Web Audio API.
+O som é sintetizado pelo navegador e depende do suporte à Web Audio API.
 
 ## API HTTP
 
-### Escala maior
+### Consultar os tipos disponíveis
+
+```http
+GET /api/escalas/tipos
+```
+
+Exemplo de resposta:
+
+```json
+[
+  { "id": "maior", "nome": "Maior" },
+  { "id": "pentatonica-maior", "nome": "Pentatônica maior" }
+]
+```
+
+### Gerar uma escala
+
+```http
+GET /api/escalas/{tipo}?tonica={tonica}
+```
+
+Exemplos:
 
 ```http
 GET /api/escalas/maior?tonica=F%23
-```
-
-### Escala menor natural
-
-```http
-GET /api/escalas/menor-natural?tonica=Bb
-```
-
-### Escala menor melódica
-
-```http
-GET /api/escalas/menor-melodica?tonica=A
-```
-
-A escala menor melódica é gerada em sua forma ascendente, com sexta e sétima maiores. A forma descendente tradicional corresponde à menor natural.
-
-### Escala menor harmônica
-
-```http
 GET /api/escalas/menor-harmonica?tonica=A
+GET /api/escalas/pentatonica-maior?tonica=C
+GET /api/escalas/tons-inteiros?tonica=C
 ```
 
-A escala menor harmônica mantém a sexta menor e eleva o sétimo grau em relação à menor natural.
+A tônica pode ser natural (`C`), sustenida (`C#` ou `C♯`) ou bemolizada (`Cb` ou `C♭`). Em URLs, `#` deve ser codificado como `%23`.
 
-A tônica pode ser natural (`C`), sustenida (`C#` ou `C♯`) ou bemolizada (`Cb` ou `C♭`). Em URLs, caracteres especiais devem ser codificados; por exemplo, `#` corresponde a `%23`.
+Tipos desconhecidos retornam `404 Not Found`; tônicas inválidas retornam `400 Bad Request`.
 
-Exemplo de resposta, com alguns valores abreviados apenas para leitura:
+Exemplo de resposta:
 
 ```json
 {
-  "tonica": "A",
+  "tonica": "C",
   "notas": [
     {
-      "nome": "A",
+      "nome": "C",
       "oitava": 4,
-      "midi": 69,
-      "frequencia": 440.0
+      "midi": 60,
+      "frequencia": 261.6255653005986
     },
     {
-      "nome": "B",
+      "nome": "D",
       "oitava": 4,
-      "midi": 71,
-      "frequencia": 493.8833012561241
+      "midi": 62,
+      "frequencia": 293.6647679174076
     }
   ]
 }
 ```
 
-Cada nota contém:
+Cada nota contém sua grafia musical, oitava científica, número MIDI e frequência em hertz, calculada com `A4 = 440 Hz`.
 
-- `nome`: grafia musical da nota;
-- `oitava`: oitava científica utilizada na reprodução;
-- `midi`: número da nota no padrão MIDI, entre 0 e 127;
-- `frequencia`: frequência em hertz, calculada com `A4 = 440 Hz`.
+## Arquitetura
 
-As escalas geradas pela API começam na oitava 4 e avançam de oitava ao atravessar a nota C.
+O domínio separa a fórmula da escala do algoritmo que gera as notas:
+
+```mermaid
+flowchart LR
+    A[TipoEscala] --> B[DefinicaoEscala]
+    B -->|intervalos e deslocamentos diatônicos| C[GeradorEscala]
+    D[Tônica] --> C
+    C --> E[Notas, oitavas, MIDI e frequências]
+    F[EscalaController] --> A
+    F --> C
+    G[Interface web] -->|consulta tipos e gera escala| F
+    E --> F
+```
+
+- `DefinicaoEscala` descreve o identificador, o nome, os intervalos cromáticos e os deslocamentos das letras.
+- `TipoEscala` funciona como catálogo das definições disponíveis.
+- `GeradorEscala` aplica qualquer definição a uma tônica, sem pressupor sete notas.
+- `EscalaController` resolve o identificador recebido, executa o gerador e expõe o resultado como JSON.
+- A interface consulta `/api/escalas/tipos`, evitando duplicar no HTML a lista mantida pelo backend.
+
+Os intervalos determinam a altura e a oitava reais. Os deslocamentos diatônicos determinam a letra usada na grafia. Essa separação permite, por exemplo, representar `C - D - E - G - A` na pentatônica maior sem produzir grafias artificiais como `F##` no lugar de `G`.
+
+Para adicionar uma escala, inclua uma definição em `TipoEscala`:
+
+```java
+PENTATONICA_MAIOR(
+    "pentatonica-maior",
+    "Pentatônica maior",
+    partes(0, 2, 4, 7, 9, 12)
+        .comDeslocamentos(0, 1, 2, 4, 5, 7)
+)
+```
+
+Os dois conjuntos precisam ter o mesmo tamanho. O primeiro intervalo deve ser zero, representando a tônica.
+
+As antigas classes específicas, como `GeradorEscalaMaior`, permanecem como adaptadores para preservar compatibilidade, mas delegam ao gerador genérico.
 
 ## Testes
 
-Execute a suíte automatizada com:
+No Windows:
 
 ```powershell
 .\mvnw.cmd test
 ```
 
-No Linux ou macOS, use `./mvnw test`. Os testes cobrem:
+No Linux ou macOS, use `./mvnw test`. A suíte cobre:
 
-- grafia de escalas maiores, menores naturais, menores melódicas e menores harmônicas;
-- acidentes simples e duplos;
+- escalas heptatônicas e pentatônicas;
+- grafia e acidentes simples ou duplos;
 - equivalência enarmônica;
+- escalas que atravessam mais de uma oitava;
 - cálculo de altura, MIDI, oitava e frequência;
-- validação de entradas;
-- respostas da camada web;
+- catálogo, validação de entradas e respostas da camada web;
 - inicialização do contexto Spring Boot.
-
-## Arquitetura
-
-As regras musicais ficam isoladas da interface e do Spring Boot. A camada web converte a tônica recebida, seleciona o gerador apropriado e fornece à interface os dados necessários para exibição e reprodução.
-
-```mermaid
-flowchart TD
-    A[Interface HTML e JavaScript] -->|GET| B[API Spring Web MVC]
-    B --> C[Domínio musical Java]
-    C -->|notas, oitavas, MIDI e frequências| B
-    B -->|JSON| A
-    A --> D[Web Audio API]
-```
-
-Estrutura principal:
-
-```text
-src/
-├── main/
-│   ├── java/br/com/geradorescalas/
-│   │   ├── dominio/   # notas, acidentes e geração de escalas
-│   │   └── web/       # endpoints HTTP
-│   └── resources/
-│       └── static/    # interface web
-└── test/              # testes de domínio, web e integração
-```
 
 O projeto não exige banco de dados, login, serviço de áudio externo ou processo separado para o front-end.
