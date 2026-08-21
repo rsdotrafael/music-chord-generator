@@ -155,9 +155,6 @@
             Escala
             <select id="tipo-escala" name="tipoEscala">
                 <option value="maior" selected>Maior</option>
-                <option value="menor-natural">Menor natural</option>
-                <option value="menor-melodica">Menor melódica</option>
-                <option value="menor-harmonica">Menor harmônica</option>
             </select>
         </label>
         <button type="submit">Gerar escala</button>
@@ -361,6 +358,27 @@
 
     let notasAtuais = [];
     let temporizadorReproducao;
+
+    async function carregarTiposDeEscala() {
+        try {
+            const resposta = await fetch('/api/escalas/tipos');
+            if (!resposta.ok) {
+                return;
+            }
+
+            const tipos = await resposta.json();
+            tipoEscala.replaceChildren(...tipos.map((tipo) => {
+                const opcao = document.createElement('option');
+                opcao.value = tipo.id;
+                opcao.textContent = tipo.nome;
+                return opcao;
+            }));
+        } catch {
+            // A opção maior permanece disponível como fallback.
+        }
+    }
+
+    carregarTiposDeEscala();
 
     controleVolume.addEventListener('input', () => {
         const percentual = Number(controleVolume.value);

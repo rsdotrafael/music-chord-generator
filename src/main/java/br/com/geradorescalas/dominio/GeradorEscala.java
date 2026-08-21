@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class GeradorEscala {
+public class GeradorEscala {
 
     private static final String LETRAS = "ABCDEFG";
 
-    private final int[] intervalos;
+    private final DefinicaoEscala definicao;
 
-    protected GeradorEscala(int... intervalos) {
-        this.intervalos = intervalos.clone();
+    public GeradorEscala(DefinicaoEscala definicao) {
+        this.definicao = Objects.requireNonNull(
+            definicao,
+            "A definição da escala não pode ser nula"
+        );
     }
 
     public List<Nota> gerar(Nota tonica) {
@@ -19,12 +22,15 @@ public abstract class GeradorEscala {
 
         List<Nota> escala = new ArrayList<>();
 
-        for (int grau = 0; grau < intervalos.length; grau++) {
+        for (int grau = 0; grau < definicao.intervalos().size(); grau++) {
             int alturaEsperada = Math.floorMod(
-                tonica.getAltura() + intervalos[grau],
+                tonica.getAltura() + definicao.intervalos().get(grau),
                 12
             );
-            char letra = calcularLetra(tonica.getLetra(), grau);
+            char letra = calcularLetra(
+                tonica.getLetra(),
+                definicao.deslocamentosDiatonicos().get(grau)
+            );
             Acidente acidente = escolherAcidente(letra, alturaEsperada);
 
             escala.add(new Nota(letra, acidente));
@@ -39,24 +45,49 @@ public abstract class GeradorEscala {
     ) {
         List<Nota> notas = gerar(tonica);
         List<NotaComOitava> escala = new ArrayList<>();
-        int oitava = oitavaInicial;
+        int midiDaTonica = new NotaComOitava(tonica, oitavaInicial)
+            .getNumeroMidi();
 
         for (int grau = 0; grau < notas.size(); grau++) {
-            if (grau > 0 && notas.get(grau).getLetra() == 'C') {
-                oitava++;
-            }
-
-            escala.add(new NotaComOitava(notas.get(grau), oitava));
+            Nota nota = notas.get(grau);
+            int midiEsperado = midiDaTonica
+                + definicao.intervalos().get(grau);
+            escala.add(new NotaComOitava(
+                nota,
+                calcularOitava(nota, midiEsperado)
+            ));
         }
 
         return List.copyOf(escala);
     }
 
-    private char calcularLetra(char letraDaTonica, int grau) {
+    private char calcularLetra(char letraDaTonica, int deslocamento) {
         int indiceInicial = LETRAS.indexOf(letraDaTonica);
-        int indiceDoGrau = (indiceInicial + grau) % LETRAS.length();
+        int indiceDoGrau = Math.floorMod(
+            indiceInicial + deslocamento,
+            LETRAS.length()
+        );
 
         return LETRAS.charAt(indiceDoGrau);
+    }
+
+    private int calcularOitava(Nota nota, int midiEsperado) {
+        int alturaEscrita = alturaNatural(nota.getLetra())
+            + nota.getAcidente().getAlteracao();
+        return Math.floorDiv(midiEsperado - alturaEscrita, 12) - 1;
+    }
+
+    private int alturaNatural(char letra) {
+        return switch (letra) {
+            case 'C' -> 0;
+            case 'D' -> 2;
+            case 'E' -> 4;
+            case 'F' -> 5;
+            case 'G' -> 7;
+            case 'A' -> 9;
+            case 'B' -> 11;
+            default -> throw new IllegalStateException("Letra inválida: " + letra);
+        };
     }
 
     private Acidente escolherAcidente(char letra, int alturaEsperada) {

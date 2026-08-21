@@ -145,6 +145,33 @@ class EscalaControllerTest {
         assertEquals(400, erro.getStatusCode().value());
     }
 
+    @Test
+    void deveGerarEscalaPentatonicaPeloEndpointGenerico() {
+        EscalaController.EscalaResponse resposta = controller.gerarEscala(
+            "pentatonica-maior",
+            "C"
+        );
+
+        assertEquals("C - D - E - G - A - C", formatarNotas(resposta));
+        assertEquals(6, resposta.notas().size());
+    }
+
+    @Test
+    void deveListarTiposDisponiveis() {
+        assertEquals(7, controller.listarTipos().size());
+        assertEquals("maior", controller.listarTipos().getFirst().id());
+    }
+
+    @Test
+    void deveRejeitarTipoDeEscalaInvalido() {
+        ResponseStatusException erro = assertThrows(
+            ResponseStatusException.class,
+            () -> controller.gerarEscala("inexistente", "C")
+        );
+
+        assertEquals(404, erro.getStatusCode().value());
+    }
+
     private String formatarNotas(EscalaController.EscalaResponse resposta) {
         return resposta.notas().stream()
             .map(nota -> Objects.requireNonNull(nota).nome())
