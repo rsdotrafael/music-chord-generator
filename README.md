@@ -6,6 +6,8 @@ Aplicação web em Java para gerar, visualizar e ouvir escalas musicais com dife
 
 - geração de escalas maiores e menores;
 - suporte a escalas pentatônicas e de tons inteiros;
+- suporte aos sete modos diatônicos e às escalas octatônicas dom-dim e dim-dom;
+- escalas blues, dominantes modernas, bebop dominante, cromática e aumentada;
 - catálogo declarativo, extensível sem criar um novo algoritmo para cada escala;
 - suporte às 21 grafias de tônica natural, sustenida ou bemolizada, de `C` a `B`;
 - uso automático de sustenidos, bemóis, sustenidos duplos e bemóis duplos quando necessários;
@@ -23,6 +25,23 @@ Tipos disponíveis:
 | `menor-natural` | Menor natural |
 | `menor-melodica` | Menor melódica ascendente |
 | `menor-harmonica` | Menor harmônica |
+| `modal-jonio` | Modal - Jônio |
+| `modal-dorico` | Modal - Dórico |
+| `modal-frigio` | Modal - Frígio |
+| `modal-lidio` | Modal - Lídio |
+| `modal-mixolidio` | Modal - Mixolídio |
+| `modal-eolio` | Modal - Eólio |
+| `modal-locrio` | Modal - Lócrio |
+| `dom-dim` | Dom dim (semitom-tom) |
+| `dim-dom` | Dim dom (tom-semitom) |
+| `blues-menor` | Blues menor |
+| `blues-maior` | Blues maior |
+| `frigio-dominante` | Frígio dominante |
+| `lidio-dominante` | Lídio dominante |
+| `alterada` | Alterada (superlócria) |
+| `bebop-dominante` | Bebop dominante |
+| `cromatica` | Cromática |
+| `aumentada` | Aumentada |
 | `pentatonica-maior` | Pentatônica maior |
 | `pentatonica-menor` | Pentatônica menor |
 | `tons-inteiros` | Tons inteiros |

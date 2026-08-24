@@ -158,7 +158,7 @@ class EscalaControllerTest {
 
     @Test
     void deveListarTiposDisponiveis() {
-        assertEquals(7, controller.listarTipos().size());
+        assertEquals(24, controller.listarTipos().size());
         assertEquals("maior", controller.listarTipos().getFirst().id());
     }
 
