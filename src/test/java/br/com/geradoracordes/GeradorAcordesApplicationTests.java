@@ -1,13 +1,11 @@
-package br.com.geradorescalas;
+package br.com.geradoracordes;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GeradorEscalasApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
+class GeradorAcordesApplicationTests {
+    @Test
+    void contextLoads() {
+    }
 }

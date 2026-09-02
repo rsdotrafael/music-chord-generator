@@ -1,4 +1,4 @@
-package br.com.geradorescalas.dominio;
+package br.com.geradoracordes.dominio;
 
 public enum Acidente {
     BEMOL_DUPLO("bb", -2),

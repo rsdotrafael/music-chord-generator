@@ -1,13 +1,15 @@
-package br.com.geradorescalas.dominio;
+package br.com.geradoracordes.dominio;
 
 import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 public final class Nota {
 
     private final char letra;
     private final Acidente acidente;
 
-    public Nota(char letra, Acidente acidente) {
+    public Nota(char letra, @Nullable Acidente acidente) {
         char letraMaiuscula = Character.toUpperCase(letra);
 
         if (letraMaiuscula < 'A' || letraMaiuscula > 'G') {

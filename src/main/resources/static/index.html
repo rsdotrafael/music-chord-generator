@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gerador de Escalas Musicais</title>
+    <title>Gerador de Acordes Musicais</title>
     <style>
         :root {
             color-scheme: light;
@@ -33,10 +33,39 @@
         }
 
         form {
-            display: flex;
+            display: grid;
             gap: 0.75rem;
-            align-items: end;
-            flex-wrap: wrap;
+        }
+
+        .construtor-acorde {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+            gap: 0.75rem;
+        }
+
+        .grupo-notas {
+            margin: 0;
+            padding: 0.8rem;
+            border: 1px solid #d8d2c7;
+            border-radius: 0.75rem;
+        }
+
+        .grupo-notas legend {
+            padding: 0 0.35rem;
+            font-weight: 700;
+        }
+
+        .grupo-notas label {
+            display: flex;
+            grid-template-columns: none;
+            gap: 0.45rem;
+            align-items: center;
+            margin: 0.35rem 0;
+            font-weight: 400;
+        }
+
+        form > button {
+            justify-self: start;
         }
 
         label {
@@ -121,8 +150,8 @@
 </head>
 <body>
 <main>
-    <h1>Gerador de Escalas Musicais</h1>
-    <p>Escolha a tônica e o tipo de escala que deseja gerar.</p>
+    <h1>Gerador de Acordes Musicais</h1>
+    <p>Monte o acorde escolhendo a função de cada nota e como deseja ouvi-lo.</p>
 
     <form id="formulario">
         <label for="tonica">
@@ -151,13 +180,68 @@
                 <option>Bb</option>
             </select>
         </label>
-        <label for="tipo-escala">
-            Escala
-            <select id="tipo-escala" name="tipoEscala">
-                <option value="maior" selected>Maior</option>
-            </select>
-        </label>
-        <button type="submit">Gerar escala</button>
+        <div class="construtor-acorde">
+            <fieldset class="grupo-notas">
+                <legend>Terça / suspensão</legend>
+                <label><input type="radio" name="terca" value="maior" checked> Maior (3)</label>
+                <label><input type="radio" name="terca" value="menor"> Menor (b3)</label>
+                <label><input type="radio" name="terca" value="sus2"> Suspensa 2 (sus2)</label>
+                <label><input type="radio" name="terca" value="sus4"> Suspensa 4 (sus4)</label>
+                <label><input type="radio" name="terca" value="omitida"> Não incluir</label>
+            </fieldset>
+
+            <fieldset class="grupo-notas">
+                <legend>Quinta</legend>
+                <label><input type="radio" name="quinta" value="diminuta"> Diminuta (b5)</label>
+                <label><input type="radio" name="quinta" value="justa" checked> Justa (5)</label>
+                <label><input type="radio" name="quinta" value="aumentada"> Aumentada (#5)</label>
+                <label><input type="radio" name="quinta" value="omitida"> Não incluir</label>
+            </fieldset>
+
+            <fieldset class="grupo-notas">
+                <legend>Sexta / décima terceira</legend>
+                <label><input type="radio" name="sexta" value="omitida" checked> Não incluir</label>
+                <label><input type="radio" name="sexta" value="menor"> Sexta menor (b6)</label>
+                <label><input type="radio" name="sexta" value="maior"> Sexta maior (6)</label>
+                <label><input type="radio" name="sexta" value="b13"> Décima terceira menor (b13)</label>
+                <label><input type="radio" name="sexta" value="13"> Décima terceira maior (13)</label>
+            </fieldset>
+
+            <fieldset class="grupo-notas">
+                <legend>Sétima</legend>
+                <label><input type="radio" name="setima" value="omitida" checked> Não incluir</label>
+                <label><input type="radio" name="setima" value="diminuta"> Diminuta (bb7)</label>
+                <label><input type="radio" name="setima" value="menor"> Menor (b7)</label>
+                <label><input type="radio" name="setima" value="maior"> Maior (7M)</label>
+            </fieldset>
+
+            <fieldset class="grupo-notas">
+                <legend>Nona</legend>
+                <label><input type="radio" name="nona" value="omitida" checked> Não incluir</label>
+                <label><input type="radio" name="nona" value="menor"> Menor (b9)</label>
+                <label><input type="radio" name="nona" value="maior"> Maior (9)</label>
+                <label><input type="radio" name="nona" value="aumentada"> Aumentada (#9)</label>
+            </fieldset>
+
+            <fieldset class="grupo-notas">
+                <legend>Décima primeira</legend>
+                <label><input type="radio" name="decimaPrimeira" value="omitida" checked> Não incluir</label>
+                <label><input type="radio" name="decimaPrimeira" value="justa"> Justa (11)</label>
+                <label><input type="radio" name="decimaPrimeira" value="aumentada"> Aumentada (#11)</label>
+            </fieldset>
+
+            <fieldset class="grupo-notas">
+                <legend>Fundamental / inversão</legend>
+                <label><input type="radio" name="baixo" value="fundamental" checked> Fundamental no baixo</label>
+                <label><input type="radio" name="baixo" value="terca"> Terça ou suspensão</label>
+                <label><input type="radio" name="baixo" value="quinta"> Quinta</label>
+                <label><input type="radio" name="baixo" value="sexta"> Sexta ou 13ª</label>
+                <label><input type="radio" name="baixo" value="setima"> Sétima</label>
+                <label><input type="radio" name="baixo" value="nona"> Nona</label>
+                <label><input type="radio" name="baixo" value="decima-primeira"> Décima primeira</label>
+            </fieldset>
+        </div>
+        <button type="submit">Gerar acorde</button>
     </form>
 
     <div id="resultado" role="status" aria-live="polite"></div>
@@ -170,6 +254,13 @@
                 <select id="timbre" name="timbre">
                     <option value="piano">Piano</option>
                     <option value="violino">Violino</option>
+                </select>
+            </label>
+            <label for="modo-reproducao">
+                Reprodução
+                <select id="modo-reproducao" name="modoReproducao">
+                    <option value="sequencial">Notas sequenciais</option>
+                    <option value="simultaneo">Notas simultâneas</option>
                 </select>
             </label>
             <label class="controle-volume" for="volume">
@@ -188,7 +279,7 @@
     </fieldset>
 
     <div class="controles-audio" aria-label="Controles de reprodução">
-        <button id="ouvir" type="button" disabled>Ouvir escala</button>
+        <button id="ouvir" type="button" disabled>Ouvir acorde</button>
         <button id="parar" type="button" disabled>Parar</button>
     </div>
 </main>
@@ -239,14 +330,14 @@
             return notas.length * duracaoNota;
         }
 
-        async reproduzirSimultaneamente(notas, duracao = 1.5) {
+        async reproduzirSimultaneamente(notas, timbre, duracao = 1.5) {
             await this.iniciarContexto();
             this.parar();
 
             const inicio = this.#contexto.currentTime;
 
             notas.forEach((nota) => {
-                this.#agendarNota(nota.frequencia, inicio, duracao);
+                this.#agendarNota(nota.frequencia, inicio, duracao, timbre);
             });
 
             return duracao;
@@ -347,9 +438,9 @@
 
     const formulario = document.querySelector('#formulario');
     const tonica = document.querySelector('#tonica');
-    const tipoEscala = document.querySelector('#tipo-escala');
     const resultado = document.querySelector('#resultado');
     const seletorTimbre = document.querySelector('#timbre');
+    const seletorModoReproducao = document.querySelector('#modo-reproducao');
     const botaoOuvir = document.querySelector('#ouvir');
     const botaoParar = document.querySelector('#parar');
     const controleVolume = document.querySelector('#volume');
@@ -359,26 +450,28 @@
     let notasAtuais = [];
     let temporizadorReproducao;
 
-    async function carregarTiposDeEscala() {
-        try {
-            const resposta = await fetch('/api/escalas/tipos');
-            if (!resposta.ok) {
-                return;
-            }
+    function atualizarInversoesDisponiveis() {
+        const componentes = {
+            terca: 'terca',
+            quinta: 'quinta',
+            sexta: 'sexta',
+            setima: 'setima',
+            nona: 'nona',
+            'decima-primeira': 'decimaPrimeira'
+        };
 
-            const tipos = await resposta.json();
-            tipoEscala.replaceChildren(...tipos.map((tipo) => {
-                const opcao = document.createElement('option');
-                opcao.value = tipo.id;
-                opcao.textContent = tipo.nome;
-                return opcao;
-            }));
-        } catch {
-            // A opção maior permanece disponível como fallback.
-        }
+        Object.entries(componentes).forEach(([baixo, grupo]) => {
+            const escolha = formulario.querySelector(`input[name="${grupo}"]:checked`);
+            const inversao = formulario.querySelector(`input[name="baixo"][value="${baixo}"]`);
+            inversao.disabled = escolha.value === 'omitida';
+            if (inversao.disabled && inversao.checked) {
+                formulario.querySelector('input[name="baixo"][value="fundamental"]').checked = true;
+            }
+        });
     }
 
-    carregarTiposDeEscala();
+    formulario.addEventListener('change', atualizarInversoesDisponiveis);
+    atualizarInversoesDisponiveis();
 
     controleVolume.addEventListener('input', () => {
         const percentual = Number(controleVolume.value);
@@ -393,26 +486,23 @@
 
         notasAtuais = [];
         botaoOuvir.disabled = true;
-        botaoOuvir.textContent = 'Ouvir escala';
+        botaoOuvir.textContent = 'Ouvir acorde';
         botaoParar.disabled = true;
         resultado.classList.remove('erro');
         resultado.textContent = 'Gerando…';
 
         try {
-            const parametros = new URLSearchParams({ tonica: tonica.value });
-            const resposta = await fetch(
-                `/api/escalas/${tipoEscala.value}?${parametros}`
-            );
-
+            const dados = new FormData(formulario);
+            const parametros = new URLSearchParams(dados);
+            const resposta = await fetch(`/api/acordes?${parametros}`);
             if (!resposta.ok) {
-                throw new Error('Não foi possível gerar a escala.');
+                throw new Error('Não foi possível gerar o acorde.');
             }
-
-            const escala = await resposta.json();
-            notasAtuais = escala.notas;
-            resultado.textContent = notasAtuais
+            const acorde = await resposta.json();
+            notasAtuais = acorde.notas;
+            resultado.textContent = `${acorde.cifra}: ${notasAtuais
                 .map((nota) => nota.nome)
-                .join(' - ');
+                .join(' - ')}`;
             botaoOuvir.disabled = false;
         } catch (erro) {
             resultado.classList.add('erro');
@@ -431,10 +521,16 @@
         botaoParar.disabled = false;
 
         try {
-            const duracao = await reprodutor.reproduzirSequencia(
-                notasAtuais,
-                seletorTimbre.value
-            );
+            const simultaneo = seletorModoReproducao.value === 'simultaneo';
+            const duracao = simultaneo
+                ? await reprodutor.reproduzirSimultaneamente(
+                    notasAtuais,
+                    seletorTimbre.value
+                )
+                : await reprodutor.reproduzirSequencia(
+                    notasAtuais,
+                    seletorTimbre.value
+                );
 
             temporizadorReproducao = setTimeout(() => {
                 botaoOuvir.disabled = false;
@@ -443,10 +539,10 @@
             }, duracao * 1000);
         } catch {
             botaoOuvir.disabled = false;
-            botaoOuvir.textContent = 'Ouvir escala';
+            botaoOuvir.textContent = 'Ouvir acorde';
             botaoParar.disabled = true;
             resultado.classList.add('erro');
-            resultado.textContent = 'Não foi possível reproduzir a escala.';
+            resultado.textContent = 'Não foi possível reproduzir o acorde.';
         }
     });
 

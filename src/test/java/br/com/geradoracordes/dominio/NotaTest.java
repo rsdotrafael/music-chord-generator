@@ -1,4 +1,4 @@
-package br.com.geradorescalas.dominio;
+package br.com.geradoracordes.dominio;
 
 import org.junit.jupiter.api.Test;
 

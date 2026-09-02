@@ -8,11 +8,11 @@
 		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.com.geradorescalas</groupId>
-	<artifactId>gerador-escalas</artifactId>
+	<groupId>br.com.geradoracordes</groupId>
+	<artifactId>gerador-acordes</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gerador-escalas</name>
-	<description>POC de gerador de escalas musicais</description>
+	<name>gerador-acordes</name>
+	<description>Gerador de acordes musicais</description>
 	<url/>
 	<licenses>
 		<license/>
