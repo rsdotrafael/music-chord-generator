@@ -4,13 +4,32 @@ Aplicação web em Java para construir, visualizar e ouvir acordes personalizado
 
 ## Funcionalidades
 
-- escolha de 21 grafias de tônica;
-- controle independente de terça, quinta, sexta ou 13ª, sétima, nona e 11ª;
+- modo simples com seleção da fundamental e de 20 tipos comuns de acordes;
+- modo avançado com controle independente de terça, quinta, sexta ou 13ª, sétima, nona e 11ª;
+- escolha entre 21 grafias da fundamental;
 - omissão de notas opcionais e inversões;
 - grafia com sustenidos, bemóis e acidentes duplos;
 - cálculo de oitava, MIDI e frequência;
 - reprodução sequencial ou simultânea;
 - timbres de piano e violino, volume e interrupção.
+
+## Modos de geração
+
+### Modo Simples
+
+Permite escolher a fundamental e gerar rapidamente um dos 20 tipos mais comuns:
+
+- maior, menor, diminuto e aumentado;
+- sus2 e sus4;
+- 6 e m6;
+- maj7, 7, m7, m7♭5 e dim7;
+- add9, madd9, maj9, 9, m9, 7♭9 e 7♯9.
+
+### Modo Avançado
+
+Permite montar o acorde componente por componente, selecionar omissões, extensões,
+alterações e a nota do baixo para criar inversões. Os controles de reprodução
+são compartilhados pelos dois modos.
 
 ## Tecnologias
 
@@ -35,6 +54,12 @@ No Linux ou macOS:
 
 Depois, acesse [http://localhost:8080](http://localhost:8080).
 
+Para executar os testes:
+
+```powershell
+.\mvnw.cmd test
+```
+
 ## API HTTP
 
 ### Construir um acorde
@@ -42,6 +67,9 @@ Depois, acesse [http://localhost:8080](http://localhost:8080).
 ```http
 GET /api/acordes?tonica=C&terca=maior&quinta=justa&sexta=omitida&setima=menor&nona=menor&decimaPrimeira=aumentada&baixo=fundamental
 ```
+
+Na interface, a nota-base é apresentada como **Fundamental**. Por compatibilidade, o
+nome do parâmetro correspondente na API permanece `tonica`.
 
 Valores aceitos:
 

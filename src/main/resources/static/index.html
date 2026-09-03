@@ -37,6 +37,58 @@
             gap: 0.75rem;
         }
 
+        .abas-modo {
+            display: flex;
+            gap: 0.35rem;
+            margin-top: 1.5rem;
+            border-bottom: 1px solid #d8d2c7;
+        }
+
+        .aba-modo {
+            min-height: 2.75rem;
+            margin-bottom: -1px;
+            border-color: transparent;
+            border-bottom-color: #d8d2c7;
+            border-radius: 0.65rem 0.65rem 0 0;
+            background: transparent;
+            color: #575145;
+        }
+
+        .aba-modo:hover {
+            background: #f4f1ea;
+        }
+
+        .aba-modo[aria-selected="true"] {
+            border-color: #d8d2c7;
+            border-bottom-color: #fff;
+            background: #fff;
+            color: #263c2d;
+        }
+
+        .aba-modo:focus-visible {
+            outline: 3px solid rgb(38 60 45 / 25%);
+            outline-offset: 2px;
+        }
+
+        .painel-modo {
+            padding-top: 1.25rem;
+        }
+
+        .painel-modo[hidden] {
+            display: none;
+        }
+
+        .formulario-simples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .formulario-simples button {
+            justify-self: start;
+        }
+
         .construtor-acorde {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
@@ -153,9 +205,84 @@
     <h1>Gerador de Acordes Musicais</h1>
     <p>Monte o acorde escolhendo a função de cada nota e como deseja ouvi-lo.</p>
 
+    <div class="abas-modo" role="tablist" aria-label="Modo de formação do acorde">
+        <button
+            id="aba-simples"
+            class="aba-modo"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="painel-simples"
+        >Modo Simples</button>
+        <button
+            id="aba-avancado"
+            class="aba-modo"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="painel-avancado"
+            tabindex="-1"
+        >Modo Avançado</button>
+    </div>
+
+    <section
+        id="painel-simples"
+        class="painel-modo"
+        role="tabpanel"
+        aria-labelledby="aba-simples"
+    >
+        <form id="formulario-simples" class="formulario-simples">
+            <label for="fundamental-simples">
+                Fundamental
+                <select id="fundamental-simples" name="tonica">
+                    <option>C</option><option>C#</option><option>Cb</option>
+                    <option>D</option><option>D#</option><option>Db</option>
+                    <option>E</option><option>E#</option><option>Eb</option>
+                    <option>F</option><option>F#</option><option>Fb</option>
+                    <option>G</option><option>G#</option><option>Gb</option>
+                    <option>A</option><option>A#</option><option>Ab</option>
+                    <option>B</option><option>B#</option><option>Bb</option>
+                </select>
+            </label>
+            <label for="tipo-acorde-simples">
+                Tipo de acorde
+                <select id="tipo-acorde-simples" name="tipo">
+                    <option value="maior">Maior</option>
+                    <option value="menor">Menor (m)</option>
+                    <option value="diminuto">Diminuto (dim)</option>
+                    <option value="aumentado">Aumentado (aug)</option>
+                    <option value="sus2">Suspenso 2 (sus2)</option>
+                    <option value="sus4">Suspenso 4 (sus4)</option>
+                    <option value="sexta">Maior com 6ª (6)</option>
+                    <option value="menor-sexta">Menor com 6ª (m6)</option>
+                    <option value="maior-setima">Maior com 7ª maior (maj7)</option>
+                    <option value="setima">Dominante com 7ª (7)</option>
+                    <option value="menor-setima">Menor com 7ª (m7)</option>
+                    <option value="meio-diminuto">Meio-diminuto (m7♭5)</option>
+                    <option value="diminuto-setima">Diminuto com 7ª (dim7)</option>
+                    <option value="add9">Maior com 9ª adicionada (add9)</option>
+                    <option value="menor-add9">Menor com 9ª adicionada (madd9)</option>
+                    <option value="maior-nona">Maior com 9ª (maj9)</option>
+                    <option value="nona">Dominante com 9ª (9)</option>
+                    <option value="menor-nona">Menor com 9ª (m9)</option>
+                    <option value="setima-nona-menor">Dominante com 9ª menor (7♭9)</option>
+                    <option value="setima-nona-aumentada">Dominante com 9ª aumentada (7♯9)</option>
+                </select>
+            </label>
+            <button type="submit">Gerar acorde</button>
+        </form>
+    </section>
+
+    <section
+        id="painel-avancado"
+        class="painel-modo"
+        role="tabpanel"
+        aria-labelledby="aba-avancado"
+        hidden
+    >
     <form id="formulario">
         <label for="tonica">
-            Tônica
+            Fundamental
             <select id="tonica" name="tonica">
                 <option>C</option>
                 <option>C#</option>
@@ -243,6 +370,7 @@
         </div>
         <button type="submit">Gerar acorde</button>
     </form>
+    </section>
 
     <div id="resultado" role="status" aria-live="polite"></div>
 
@@ -437,6 +565,8 @@
     }
 
     const formulario = document.querySelector('#formulario');
+    const formularioSimples = document.querySelector('#formulario-simples');
+    const abasModo = [...document.querySelectorAll('[role="tab"]')];
     const tonica = document.querySelector('#tonica');
     const resultado = document.querySelector('#resultado');
     const seletorTimbre = document.querySelector('#timbre');
@@ -449,6 +579,55 @@
 
     let notasAtuais = [];
     let temporizadorReproducao;
+
+    const configuracoesSimples = {
+        maior: { terca: 'maior', quinta: 'justa' },
+        menor: { terca: 'menor', quinta: 'justa' },
+        diminuto: { terca: 'menor', quinta: 'diminuta' },
+        aumentado: { terca: 'maior', quinta: 'aumentada' },
+        sus2: { terca: 'sus2', quinta: 'justa' },
+        sus4: { terca: 'sus4', quinta: 'justa' },
+        sexta: { terca: 'maior', quinta: 'justa', sexta: 'maior' },
+        'menor-sexta': { terca: 'menor', quinta: 'justa', sexta: 'maior' },
+        'maior-setima': { terca: 'maior', quinta: 'justa', setima: 'maior' },
+        setima: { terca: 'maior', quinta: 'justa', setima: 'menor' },
+        'menor-setima': { terca: 'menor', quinta: 'justa', setima: 'menor' },
+        'meio-diminuto': { terca: 'menor', quinta: 'diminuta', setima: 'menor' },
+        'diminuto-setima': { terca: 'menor', quinta: 'diminuta', setima: 'diminuta' },
+        add9: { terca: 'maior', quinta: 'justa', nona: 'maior' },
+        'menor-add9': { terca: 'menor', quinta: 'justa', nona: 'maior' },
+        'maior-nona': { terca: 'maior', quinta: 'justa', setima: 'maior', nona: 'maior' },
+        nona: { terca: 'maior', quinta: 'justa', setima: 'menor', nona: 'maior' },
+        'menor-nona': { terca: 'menor', quinta: 'justa', setima: 'menor', nona: 'maior' },
+        'setima-nona-menor': { terca: 'maior', quinta: 'justa', setima: 'menor', nona: 'menor' },
+        'setima-nona-aumentada': { terca: 'maior', quinta: 'justa', setima: 'menor', nona: 'aumentada' }
+    };
+
+    function selecionarAba(abaSelecionada) {
+        abasModo.forEach((aba) => {
+            const selecionada = aba === abaSelecionada;
+            const painel = document.querySelector(`#${aba.getAttribute('aria-controls')}`);
+
+            aba.setAttribute('aria-selected', String(selecionada));
+            aba.tabIndex = selecionada ? 0 : -1;
+            painel.hidden = !selecionada;
+        });
+    }
+
+    abasModo.forEach((aba, indice) => {
+        aba.addEventListener('click', () => selecionarAba(aba));
+        aba.addEventListener('keydown', (evento) => {
+            if (!['ArrowLeft', 'ArrowRight'].includes(evento.key)) {
+                return;
+            }
+
+            evento.preventDefault();
+            const deslocamento = evento.key === 'ArrowRight' ? 1 : -1;
+            const proximoIndice = (indice + deslocamento + abasModo.length) % abasModo.length;
+            selecionarAba(abasModo[proximoIndice]);
+            abasModo[proximoIndice].focus();
+        });
+    });
 
     function atualizarInversoesDisponiveis() {
         const componentes = {
@@ -479,8 +658,7 @@
         reprodutor.definirVolume(percentual / 100);
     });
 
-    formulario.addEventListener('submit', async (evento) => {
-        evento.preventDefault();
+    async function gerarAcorde(parametros) {
         reprodutor.parar();
         clearTimeout(temporizadorReproducao);
 
@@ -492,8 +670,6 @@
         resultado.textContent = 'Gerando…';
 
         try {
-            const dados = new FormData(formulario);
-            const parametros = new URLSearchParams(dados);
             const resposta = await fetch(`/api/acordes?${parametros}`);
             if (!resposta.ok) {
                 throw new Error('Não foi possível gerar o acorde.');
@@ -508,6 +684,22 @@
             resultado.classList.add('erro');
             resultado.textContent = erro.message;
         }
+    }
+
+    formulario.addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+        await gerarAcorde(new URLSearchParams(new FormData(formulario)));
+    });
+
+    formularioSimples.addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+        const dados = new FormData(formularioSimples);
+        const tipo = dados.get('tipo');
+        const parametros = new URLSearchParams({
+            tonica: dados.get('tonica'),
+            ...configuracoesSimples[tipo]
+        });
+        await gerarAcorde(parametros);
     });
 
     botaoOuvir.addEventListener('click', async () => {
